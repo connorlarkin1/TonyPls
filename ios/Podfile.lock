@@ -115,7 +115,7 @@ PODS:
     - "GoogleUtilities/NSData+zlib (~> 5.2)"
     - Protobuf (~> 3.5)
   - Google-Mobile-Ads-SDK (7.37.0)
-  - GoogleAppMeasurement (5.4.0):
+  - GoogleAppMeasurement (5.3.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 5.2)
     - GoogleUtilities/MethodSwizzler (~> 5.2)
     - GoogleUtilities/Network (~> 5.2)
@@ -195,6 +195,7 @@ DEPENDENCIES:
   - Firebase/Functions (~> 5.11.0)
   - Firebase/Messaging (~> 5.11.0)
   - Firebase/Performance (~> 5.11.0)
+  - GoogleAppMeasurement (= 5.3)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -250,7 +251,7 @@ SPEC CHECKSUMS:
   FirebasePerformance: 4adfe91a2c696bc43429822ad0e4aa8753b283b4
   FirebaseRemoteConfig: 7e11c65f0769c09bff6947997c209515058c5318
   Google-Mobile-Ads-SDK: d028682d7450749a1955679da050eaf70d997b3e
-  GoogleAppMeasurement: 98b71f5e04142793729a5ef23e5b96651ff4b70f
+  GoogleAppMeasurement: 5029d78f2b438bd30ffb44e6c558b57c21622727
   GoogleToolboxForMac: ff31605b7d66400dcec09bed5861689aebadda4d
   GoogleUtilities: 95996bea7c7d9b8fb811b7507669a4a8762f80c7
   gRPC: 72b71666056dcb12235b5238f0ff5948fd60321a
@@ -263,6 +264,6 @@ SPEC CHECKSUMS:
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   Protobuf: 1eb9700044745f00181c136ef21b8ff3ad5a0fd5
 
-PODFILE CHECKSUM: 8a1a2325ffae314bddf905b58e929503523e1708
+PODFILE CHECKSUM: 27ff294330c9ebcc3e0c12d0086ae87399d58ec2
 
 COCOAPODS: 1.6.0.beta.2

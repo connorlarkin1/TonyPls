@@ -1,102 +1,187 @@
-import React from 'react';
-import { StyleSheet, Platform, Image, Text, View, ScrollView } from 'react-native';
-
+import React, { Component } from 'react';
+import { View, Button, Text, TextInput, Image } from 'react-native';
+import Home from './app/screens/Home'
 import firebase from 'react-native-firebase';
 
-export default class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {};
+const successImageUri = 'https://cdn.pixabay.com/photo/2015/06/09/16/12/icon-803718_1280.png';
+
+FCM = firebase.messaging();
+//ref = firebase.firestore().collection("users");
+// check to make sure the user is authenticated  
+firebase.auth().onAuthStateChanged(user => {
+  // requests permissions from the user
+    firebase.messaging().requestPermission()
+      .then(() => {
+        // gets the device's push token
+        FCM.getToken().then(token => {
+          console.log(user.uid)
+          const ref = firebase.firestore().collection('users').doc(user.uid);
+          firebase
+            .firestore()
+            .runTransaction(async transaction => {
+              const doc = await transaction.get(ref);
+              const profile = user._user;
+              console.log(profile)
+              // if it does not exist set the population to one
+              if (!doc.exists) {  
+                transaction.set(ref, { 
+                  pushToken: token,
+                  profile: profile
+                } );
+                // return the new value so we know what the new population is
+                return token;
+              }
+          
+          
+              transaction.update(ref, { pushToken: token, profile: profile });
+          
+              // return the new value so we know what the new population is
+              return token;
+            })
+            .then(token => {
+              console.log(
+                `Transaction successfully committed and new population is '${token}'.`
+              );
+            })
+            .catch(error => {
+              console.log('Transaction failed: ', error);
+            });
+            
+            // stores the token in the user's document
+        })
+        .catch(error => {
+          // User has rejected permissions
+          console.log(error)  
+        }
+      );
+    }).catch((e) => console.log(e));
+})
+
+export default class PhoneAuthTest extends Component {
+  constructor(props) {
+    super(props);
+    this.unsubscribe = null;
+    this.state = {
+      user: null,
+      message: '',
+      codeInput: '',
+      phoneNumber: '+1',
+      confirmResult: null,
+    };
   }
 
-  async componentDidMount() {
-    // TODO: You: Do firebase things
-    // const { user } = await firebase.auth().signInAnonymously();
-    // console.warn('User -> ', user.toJSON());
+  componentDidMount() {
+    this.unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.setState({ user: user.toJSON() });
+      } else {
+        // User has been signed out, reset the state
+        this.setState({
+          user: null,
+          message: '',
+          codeInput: '',
+          phoneNumber: '+44',
+          confirmResult: null,
+        });
+      }
+    });
+  }
 
-    // await firebase.analytics().logEvent('foo', { bar: '123'});
+  componentWillUnmount() {
+     if (this.unsubscribe) this.unsubscribe();
+  }
+
+  signIn = () => {
+    const { phoneNumber } = this.state;
+    this.setState({ message: 'Sending code ...' });
+
+    firebase.auth().signInWithPhoneNumber(phoneNumber)
+      .then(confirmResult => this.setState({ confirmResult, message: 'Code has been sent!' }))
+      .catch(error => this.setState({ message: `Sign In With Phone Number Error: ${error.message}` }));
+  };
+
+  confirmCode = () => {
+    const { codeInput, confirmResult } = this.state;
+
+    if (confirmResult && codeInput.length) {
+      confirmResult.confirm(codeInput)
+        .then((user) => {
+          this.setState({ message: 'Code Confirmed!' });
+        })
+        .catch(error => this.setState({ message: `Code Confirm Error: ${error.message}` }));
+    }
+  };
+
+  signOut = () => {
+    firebase.auth().signOut();
+  }
+
+  renderPhoneNumberInput() {
+   const { phoneNumber } = this.state;
+
+    return (
+      <View style={{ padding: 25 }}>
+        <Text>Enter phone number:</Text>
+        <TextInput
+          autoFocus
+          style={{ height: 40, marginTop: 15, marginBottom: 15 }}
+          onChangeText={value => this.setState({ phoneNumber: value })}
+          placeholder={'Phone number ... '}
+          value={phoneNumber}
+        />
+        <Button title="Sign In" color="green" onPress={this.signIn} />
+      </View>
+    );
+  }
+
+  renderMessage() {
+    const { message } = this.state;
+
+    if (!message.length) return null;
+
+    return (
+      <Text style={{ padding: 5, backgroundColor: '#000', color: '#fff' }}>{message}</Text>
+    );
+  }
+
+  renderVerificationCodeInput() {
+    const { codeInput } = this.state;
+
+    return (
+      <View style={{ marginTop: 25, padding: 25 }}>
+        <Text>Enter verification code below:</Text>
+        <TextInput
+          autoFocus
+          style={{ height: 40, marginTop: 15, marginBottom: 15 }}
+          onChangeText={value => this.setState({ codeInput: value })}
+          placeholder={'Code ... '}
+          value={codeInput}
+        />
+        <Button title="Confirm Code" color="#841584" onPress={this.confirmCode} />
+      </View>
+    );
   }
 
   render() {
+    const { user, confirmResult } = this.state;
     return (
-      <ScrollView>
-        <View style={styles.container}>
-          <Image source={require('./assets/ReactNativeFirebase.png')} style={[styles.logo]}/>
-          <Text style={styles.welcome}>
-            Welcome to {'\n'} React Native Firebase
-          </Text>
-          <Text style={styles.instructions}>
-            To get started, edit App.js
-          </Text>
-          {Platform.OS === 'ios' ? (
-            <Text style={styles.instructions}>
-              Press Cmd+R to reload,{'\n'}
-              Cmd+D or shake for dev menu
-            </Text>
-          ) : (
-            <Text style={styles.instructions}>
-              Double tap R on your keyboard to reload,{'\n'}
-              Cmd+M or shake for dev menu
-            </Text>
-          )}
-          <View style={styles.modules}>
-            <Text style={styles.modulesHeader}>The following Firebase modules are pre-installed:</Text>
-            {firebase.admob.nativeModuleExists && <Text style={styles.module}>admob()</Text>}
-            {firebase.analytics.nativeModuleExists && <Text style={styles.module}>analytics()</Text>}
-            {firebase.auth.nativeModuleExists && <Text style={styles.module}>auth()</Text>}
-            {firebase.config.nativeModuleExists && <Text style={styles.module}>config()</Text>}
-            {firebase.crashlytics.nativeModuleExists && <Text style={styles.module}>crashlytics()</Text>}
-            {firebase.database.nativeModuleExists && <Text style={styles.module}>database()</Text>}
-            {firebase.firestore.nativeModuleExists && <Text style={styles.module}>firestore()</Text>}
-            {firebase.functions.nativeModuleExists && <Text style={styles.module}>functions()</Text>}
-            {firebase.iid.nativeModuleExists && <Text style={styles.module}>iid()</Text>}
-            {firebase.invites.nativeModuleExists && <Text style={styles.module}>invites()</Text>}
-            {firebase.links.nativeModuleExists && <Text style={styles.module}>links()</Text>}
-            {firebase.messaging.nativeModuleExists && <Text style={styles.module}>messaging()</Text>}
-            {firebase.notifications.nativeModuleExists && <Text style={styles.module}>notifications()</Text>}
-            {firebase.perf.nativeModuleExists && <Text style={styles.module}>perf()</Text>}
-            {firebase.storage.nativeModuleExists && <Text style={styles.module}>storage()</Text>}
-          </View>
+      <View style={{ flex: 1 }}>
+
+        {!user && !confirmResult && this.renderPhoneNumberInput()}
+
+        {this.renderMessage()}
+
+        {!user && confirmResult && this.renderVerificationCodeInput()}
+
+        {user && 
+          <>
+          <Home 
+            user={user}
+            signOut={this.signOut}
+          />
+          </>
+        }
         </View>
-      </ScrollView>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  logo: {
-    height: 120,
-    marginBottom: 16,
-    marginTop: 64,
-    padding: 10,
-    width: 135,
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-  modules: {
-    margin: 20,
-  },
-  modulesHeader: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  module: {
-    fontSize: 14,
-    marginTop: 4,
-    textAlign: 'center',
-  }
-});
