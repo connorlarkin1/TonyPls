@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Button, Text, TextInput, Image } from 'react-native';
+import { View, Button, Text, TextInput, Image,SafeAreaView} from 'react-native';
 import Home from './app/screens/Home'
 import firebase from 'react-native-firebase';
 
@@ -80,7 +80,7 @@ export default class PhoneAuthTest extends Component {
           user: null,
           message: '',
           codeInput: '',
-          phoneNumber: '+44',
+          phoneNumber: '+1',
           confirmResult: null,
         });
       }
@@ -165,7 +165,7 @@ export default class PhoneAuthTest extends Component {
   render() {
     const { user, confirmResult } = this.state;
     return (
-      <View style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
 
         {!user && !confirmResult && this.renderPhoneNumberInput()}
 
@@ -181,7 +181,7 @@ export default class PhoneAuthTest extends Component {
           />
           </>
         }
-        </View>
+        </SafeAreaView>
     );
   }
 }
