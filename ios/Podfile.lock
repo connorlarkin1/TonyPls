@@ -1,4 +1,5 @@
 PODS:
+  - boost-for-react-native (1.63.0)
   - BoringSSL-GRPC (0.0.2):
     - BoringSSL-GRPC/Implementation (= 0.0.2)
     - BoringSSL-GRPC/Interface (= 0.0.2)
@@ -7,6 +8,7 @@ PODS:
   - BoringSSL-GRPC/Interface (0.0.2)
   - Crashlytics (3.10.9):
     - Fabric (~> 1.7.13)
+  - DoubleConversion (1.1.6)
   - Fabric (1.7.13)
   - Firebase/AdMob (5.11.0):
     - Firebase/Core
@@ -114,6 +116,11 @@ PODS:
     - GoogleUtilities/Environment (~> 5.2)
     - "GoogleUtilities/NSData+zlib (~> 5.2)"
     - Protobuf (~> 3.5)
+  - Folly (2016.10.31.00):
+    - boost-for-react-native
+    - DoubleConversion
+    - glog
+  - glog (0.3.5)
   - Google-Mobile-Ads-SDK (7.37.0)
   - GoogleAppMeasurement (5.3.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 5.2)
@@ -182,9 +189,60 @@ PODS:
   - nanopb/decode (0.3.901)
   - nanopb/encode (0.3.901)
   - Protobuf (3.6.1)
+  - React (0.57.8):
+    - React/Core (= 0.57.8)
+  - React/Core (0.57.8):
+    - yoga (= 0.57.8.React)
+  - React/CxxBridge (0.57.8):
+    - Folly (= 2016.10.31.00)
+    - React/Core
+    - React/cxxreact
+  - React/cxxreact (0.57.8):
+    - boost-for-react-native (= 1.63.0)
+    - Folly (= 2016.10.31.00)
+    - React/jschelpers
+    - React/jsinspector
+  - React/DevSupport (0.57.8):
+    - React/Core
+    - React/RCTWebSocket
+  - React/fishhook (0.57.8)
+  - React/jschelpers (0.57.8):
+    - Folly (= 2016.10.31.00)
+    - React/PrivateDatabase
+  - React/jsinspector (0.57.8)
+  - React/PrivateDatabase (0.57.8)
+  - React/RCTActionSheet (0.57.8):
+    - React/Core
+  - React/RCTAnimation (0.57.8):
+    - React/Core
+  - React/RCTBlob (0.57.8):
+    - React/Core
+  - React/RCTGeolocation (0.57.8):
+    - React/Core
+  - React/RCTImage (0.57.8):
+    - React/Core
+    - React/RCTNetwork
+  - React/RCTLinkingIOS (0.57.8):
+    - React/Core
+  - React/RCTNetwork (0.57.8):
+    - React/Core
+  - React/RCTSettings (0.57.8):
+    - React/Core
+  - React/RCTText (0.57.8):
+    - React/Core
+  - React/RCTVibration (0.57.8):
+    - React/Core
+  - React/RCTWebSocket (0.57.8):
+    - React/Core
+    - React/fishhook
+    - React/RCTBlob
+  - RNGestureHandler (1.0.12):
+    - React
+  - yoga (0.57.8.React)
 
 DEPENDENCIES:
   - Crashlytics (~> 3.10.9)
+  - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Fabric (~> 1.7.13)
   - Firebase/AdMob (~> 5.11.0)
   - Firebase/Auth (~> 5.11.0)
@@ -195,10 +253,28 @@ DEPENDENCIES:
   - Firebase/Functions (~> 5.11.0)
   - Firebase/Messaging (~> 5.11.0)
   - Firebase/Performance (~> 5.11.0)
+  - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
+  - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - GoogleAppMeasurement (= 5.3)
+  - React/Core (from `../node_modules/react-native`)
+  - React/CxxBridge (from `../node_modules/react-native`)
+  - React/DevSupport (from `../node_modules/react-native`)
+  - React/RCTActionSheet (from `../node_modules/react-native`)
+  - React/RCTAnimation (from `../node_modules/react-native`)
+  - React/RCTGeolocation (from `../node_modules/react-native`)
+  - React/RCTImage (from `../node_modules/react-native`)
+  - React/RCTLinkingIOS (from `../node_modules/react-native`)
+  - React/RCTNetwork (from `../node_modules/react-native`)
+  - React/RCTSettings (from `../node_modules/react-native`)
+  - React/RCTText (from `../node_modules/react-native`)
+  - React/RCTVibration (from `../node_modules/react-native`)
+  - React/RCTWebSocket (from `../node_modules/react-native`)
+  - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - yoga (from `../node_modules/react-native/ReactCommon/yoga/yoga.podspec`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - boost-for-react-native
     - BoringSSL-GRPC
     - Crashlytics
     - Fabric
@@ -231,9 +307,25 @@ SPEC REPOS:
     - nanopb
     - Protobuf
 
+EXTERNAL SOURCES:
+  DoubleConversion:
+    :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  Folly:
+    :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
+  glog:
+    :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  React:
+    :path: "../node_modules/react-native"
+  RNGestureHandler:
+    :path: "../node_modules/react-native-gesture-handler"
+  yoga:
+    :path: "../node_modules/react-native/ReactCommon/yoga/yoga.podspec"
+
 SPEC CHECKSUMS:
+  boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BoringSSL-GRPC: 2a230d9cd93e7ce39916044f645cebb31f37dde6
   Crashlytics: 55e24fc23989680285a21cb1146578d9d18e432c
+  DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
   Fabric: 25d0963b691fc97be566392243ff0ecef5a68338
   Firebase: b48f9e653da971ecce5b8c749684bc8bb2d26bd3
   FirebaseABTesting: 1f50b8d50f5e3469eea54e7463a7b7fe221d1f5e
@@ -250,6 +342,8 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 0f14a264b0d7f867e8eff5d3556bc5d0d4e57888
   FirebasePerformance: 4adfe91a2c696bc43429822ad0e4aa8753b283b4
   FirebaseRemoteConfig: 7e11c65f0769c09bff6947997c209515058c5318
+  Folly: c89ac2d5c6ab169cd7397ef27485c44f35f742c7
+  glog: e8acf0ebbf99759d3ff18c86c292a5898282dcde
   Google-Mobile-Ads-SDK: d028682d7450749a1955679da050eaf70d997b3e
   GoogleAppMeasurement: 5029d78f2b438bd30ffb44e6c558b57c21622727
   GoogleToolboxForMac: ff31605b7d66400dcec09bed5861689aebadda4d
@@ -263,7 +357,10 @@ SPEC CHECKSUMS:
   leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   Protobuf: 1eb9700044745f00181c136ef21b8ff3ad5a0fd5
+  React: adbac0757ce35e92fbd447ab98c810209d27d9b0
+  RNGestureHandler: 19864cb399138347461e7c9984ccf684cbf4db1d
+  yoga: 74cdf036c30820443b25ade59916236b1e95ee93
 
-PODFILE CHECKSUM: 27ff294330c9ebcc3e0c12d0086ae87399d58ec2
+PODFILE CHECKSUM: 39873cd9bcdb9ed80b9b03ca9f6247d437f93136
 
 COCOAPODS: 1.6.0.beta.2
