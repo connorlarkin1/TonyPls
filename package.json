@@ -4,9 +4,17 @@
   "private": true,
   "devDependencies": {
     "babel-jest": "23.6.0",
+    "eslint": "^5.10.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-prettier": "^3.0.0",
+    "eslint-plugin-react": "^7.11.1",
     "fs-extra": "^6.0.1",
     "jest": "23.6.0",
     "metro-react-native-babel-preset": "0.48.0",
+    "prettier": "^1.15.3",
     "react-test-renderer": "16.5.0",
     "replace-in-file": "^3.4.0"
   },
@@ -22,11 +30,16 @@
     "preset": "react-native"
   },
   "dependencies": {
+    "babel-eslint": "^10.0.1",
+    "prop-types": "^15.6.2",
     "react": "16.6.3",
     "react-native": "0.57.8",
+    "react-native-elements": "^1.0.0-beta7",
     "react-native-firebase": "^5.1.1",
     "react-native-gesture-handler": "^1.0.12",
+    "react-native-screens": "^1.0.0-alpha.17",
     "react-native-textinput-effects": "^0.4.2",
+    "react-native-vector-icons": "^6.1.0",
     "react-navigation": "^3.0.8"
   }
 }

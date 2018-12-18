@@ -52,6 +52,10 @@ target 'TonyPls' do
   pod 'GoogleAppMeasurement', '5.3'
   pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
 
+  pod 'RNScreens', :path => '../node_modules/react-native-screens'
+
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
 end
 
 post_install do |installer|

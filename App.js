@@ -1,63 +1,17 @@
 import React, { Component } from 'react';
-import { View, Button, Text, TextInput, Image,SafeAreaView} from 'react-native';
+import { View, Button, Text, TextInput, Image,SafeAreaView, StyleSheet, ActivityIndicator, StatusBar, AsyncStorage} from 'react-native';
 import Home from './app/screens/Home'
+import Settings from './app/screens/Settings'
+
 import firebase from 'react-native-firebase';
+import { createDrawerNavigator, createStackNavigator, createSwitchNavigator, createAppContainer } from 'react-navigation';
+import { useScreens } from 'react-native-screens';
+
+useScreens();
 
 const successImageUri = 'https://cdn.pixabay.com/photo/2015/06/09/16/12/icon-803718_1280.png';
 
-FCM = firebase.messaging();
-//ref = firebase.firestore().collection("users");
-// check to make sure the user is authenticated  
-firebase.auth().onAuthStateChanged(user => {
-  // requests permissions from the user
-    firebase.messaging().requestPermission()
-      .then(() => {
-        // gets the device's push token
-        FCM.getToken().then(token => {
-          console.log(user.uid)
-          const ref = firebase.firestore().collection('users').doc(user.uid);
-          firebase
-            .firestore()
-            .runTransaction(async transaction => {
-              const doc = await transaction.get(ref);
-              const profile = user._user;
-              console.log(profile)
-              // if it does not exist set the population to one
-              if (!doc.exists) {  
-                transaction.set(ref, { 
-                  pushToken: token,
-                  profile: profile
-                } );
-                // return the new value so we know what the new population is
-                return token;
-              }
-          
-          
-              transaction.update(ref, { pushToken: token, profile: profile });
-          
-              // return the new value so we know what the new population is
-              return token;
-            })
-            .then(token => {
-              console.log(
-                `Transaction successfully committed and new population is '${token}'.`
-              );
-            })
-            .catch(error => {
-              console.log('Transaction failed: ', error);
-            });
-            
-            // stores the token in the user's document
-        })
-        .catch(error => {
-          // User has rejected permissions
-          console.log(error)  
-        }
-      );
-    }).catch((e) => console.log(e));
-})
-
-export default class PhoneAuthTest extends Component {
+class HomeScreen extends Component {
   constructor(props) {
     super(props);
     this.unsubscribe = null;
@@ -162,8 +116,13 @@ export default class PhoneAuthTest extends Component {
     );
   }
 
+
   render() {
     const { user, confirmResult } = this.state;
+
+    if (user) {
+      this.props.navigation.navigate('Home', {user: user})
+    }
     return (
       <SafeAreaView style={{ flex: 1 }}>
 
@@ -185,3 +144,74 @@ export default class PhoneAuthTest extends Component {
     );
   }
 }
+
+class AuthLoadingScreen extends Component {
+  constructor() {
+    super();
+    this.state = {
+      isAuthenticated: false
+    }
+  }
+
+
+  componentDidMount() {
+    firebase.auth().signInAnonymously()
+      .then(() => {
+        this.setState({
+          isAuthenticated: true,
+        });
+      }).catch((e) => console.log(e));
+  }
+
+  // Render any loading content that you like here
+  render() {
+    const { isAuthenticated } = this.state;
+    if (isAuthenticated){
+      this.props.navigation.navigate('App');
+    }
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator />
+        <StatusBar barStyle="default" />
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+const AppNavigator = createStackNavigator({
+  Home: {
+    screen: HomeScreen
+  }
+});
+
+const MyDrawerNavigator = createDrawerNavigator({
+  Home: {
+    screen: Home,
+  },
+  Settings: {
+    screen: Settings
+  }
+});
+
+const AppStack = createStackNavigator({ Home: Home });
+
+const AuthStack = createStackNavigator({ SignIn: HomeScreen });
+
+export default createAppContainer(createSwitchNavigator(
+  {
+    AuthLoading: AuthLoadingScreen,
+    App: MyDrawerNavigator,
+    Auth: AuthStack,
+  },
+  {
+    initialRouteName: 'AuthLoading',
+  }
+));
