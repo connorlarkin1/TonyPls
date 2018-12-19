@@ -4,6 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.microsoft.codepush.react.CodePush;
+import com.azendoo.reactnativesnackbar.SnackbarPackage;
+import com.airbnb.android.react.lottie.LottiePackage;
+import com.BV.LinearGradient.LinearGradientPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.swmansion.rnscreens.RNScreensPackage;
 import io.invertase.firebase.RNFirebasePackage;
@@ -37,6 +41,12 @@ import java.util.List;
 public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+
+        @Override
+        protected String getJSBundleFile() {
+        return CodePush.getJSBundleFile();
+        }
+    
     @Override
     public boolean getUseDeveloperSupport() {
       return BuildConfig.DEBUG;
@@ -47,6 +57,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.asList(
         new MainReactPackage(),
+            new CodePush(null, getApplicationContext(), BuildConfig.DEBUG),
+            new SnackbarPackage(),
+            new LottiePackage(),
+            new LinearGradientPackage(),
             new VectorIconsPackage(),
             new RNScreensPackage(),
             new RNFirebasePackage(),

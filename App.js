@@ -1,11 +1,31 @@
 import React, { Component } from 'react';
-import { View, Button, Text, TextInput, Image,SafeAreaView, StyleSheet, ActivityIndicator, StatusBar, AsyncStorage} from 'react-native';
-import Home from './app/screens/Home'
-import Settings from './app/screens/Settings'
+import {
+  View,
+  Button,
+  Text,
+  TextInput,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  ActivityIndicator,
+  StatusBar,
+  AsyncStorage,
+} from 'react-native';
 
 import firebase from 'react-native-firebase';
-import { createDrawerNavigator, createStackNavigator, createSwitchNavigator, createAppContainer } from 'react-navigation';
+import {
+  createDrawerNavigator,
+  createStackNavigator,
+  createSwitchNavigator,
+  createAppContainer,
+} from 'react-navigation';
 import { useScreens } from 'react-native-screens';
+import codePush from 'react-native-code-push';
+
+import Settings from './app/screens/Settings';
+import Home from './app/screens/Home';
+import AuthLoadingScreen from './app/screens/AuthLoadingScreen';
+import Username from './app/screens/Username';
 
 useScreens();
 
@@ -25,7 +45,7 @@ class HomeScreen extends Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+    this.unsubscribe = firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.setState({ user: user.toJSON() });
       } else {
@@ -42,24 +62,29 @@ class HomeScreen extends Component {
   }
 
   componentWillUnmount() {
-     if (this.unsubscribe) this.unsubscribe();
+    if (this.unsubscribe) this.unsubscribe();
   }
 
   signIn = () => {
     const { phoneNumber } = this.state;
     this.setState({ message: 'Sending code ...' });
 
-    firebase.auth().signInWithPhoneNumber(phoneNumber)
+    firebase
+      .auth()
+      .signInWithPhoneNumber(phoneNumber)
       .then(confirmResult => this.setState({ confirmResult, message: 'Code has been sent!' }))
-      .catch(error => this.setState({ message: `Sign In With Phone Number Error: ${error.message}` }));
+      .catch(error =>
+        this.setState({ message: `Sign In With Phone Number Error: ${error.message}` })
+      );
   };
 
   confirmCode = () => {
     const { codeInput, confirmResult } = this.state;
 
     if (confirmResult && codeInput.length) {
-      confirmResult.confirm(codeInput)
-        .then((user) => {
+      confirmResult
+        .confirm(codeInput)
+        .then(user => {
           this.setState({ message: 'Code Confirmed!' });
         })
         .catch(error => this.setState({ message: `Code Confirm Error: ${error.message}` }));
@@ -68,10 +93,10 @@ class HomeScreen extends Component {
 
   signOut = () => {
     firebase.auth().signOut();
-  }
+  };
 
   renderPhoneNumberInput() {
-   const { phoneNumber } = this.state;
+    const { phoneNumber } = this.state;
 
     return (
       <View style={{ padding: 25 }}>
@@ -80,7 +105,7 @@ class HomeScreen extends Component {
           autoFocus
           style={{ height: 40, marginTop: 15, marginBottom: 15 }}
           onChangeText={value => this.setState({ phoneNumber: value })}
-          placeholder={'Phone number ... '}
+          placeholder="Phone number ... "
           value={phoneNumber}
         />
         <Button title="Sign In" color="green" onPress={this.signIn} />
@@ -93,9 +118,7 @@ class HomeScreen extends Component {
 
     if (!message.length) return null;
 
-    return (
-      <Text style={{ padding: 5, backgroundColor: '#000', color: '#fff' }}>{message}</Text>
-    );
+    return <Text style={{ padding: 5, backgroundColor: '#000', color: '#fff' }}>{message}</Text>;
   }
 
   renderVerificationCodeInput() {
@@ -108,7 +131,7 @@ class HomeScreen extends Component {
           autoFocus
           style={{ height: 40, marginTop: 15, marginBottom: 15 }}
           onChangeText={value => this.setState({ codeInput: value })}
-          placeholder={'Code ... '}
+          placeholder="Code ... "
           value={codeInput}
         />
         <Button title="Confirm Code" color="#841584" onPress={this.confirmCode} />
@@ -116,102 +139,52 @@ class HomeScreen extends Component {
     );
   }
 
-
   render() {
     const { user, confirmResult } = this.state;
 
     if (user) {
-      this.props.navigation.navigate('Home', {user: user})
+      this.props.navigation.navigate('Home');
     }
     return (
       <SafeAreaView style={{ flex: 1 }}>
-
         {!user && !confirmResult && this.renderPhoneNumberInput()}
 
         {this.renderMessage()}
 
         {!user && confirmResult && this.renderVerificationCodeInput()}
 
-        {user && 
+        {user && (
           <>
-          <Home 
-            user={user}
-            signOut={this.signOut}
-          />
+            <Home user={user} signOut={this.signOut} />
           </>
-        }
-        </SafeAreaView>
+        )}
+      </SafeAreaView>
     );
   }
 }
-
-class AuthLoadingScreen extends Component {
-  constructor() {
-    super();
-    this.state = {
-      isAuthenticated: false
-    }
-  }
-
-
-  componentDidMount() {
-    firebase.auth().signInAnonymously()
-      .then(() => {
-        this.setState({
-          isAuthenticated: true,
-        });
-      }).catch((e) => console.log(e));
-  }
-
-  // Render any loading content that you like here
-  render() {
-    const { isAuthenticated } = this.state;
-    if (isAuthenticated){
-      this.props.navigation.navigate('App');
-    }
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator />
-        <StatusBar barStyle="default" />
-      </View>
-    );
-  }
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
-const AppNavigator = createStackNavigator({
-  Home: {
-    screen: HomeScreen
-  }
-});
 
 const MyDrawerNavigator = createDrawerNavigator({
   Home: {
     screen: Home,
   },
   Settings: {
-    screen: Settings
-  }
+    screen: Settings,
+  },
 });
 
-const AppStack = createStackNavigator({ Home: Home });
+const codePushOptions = { checkFrequency: codePush.CheckFrequency.ON_APP_RESUME };
 
-const AuthStack = createStackNavigator({ SignIn: HomeScreen });
-
-export default createAppContainer(createSwitchNavigator(
-  {
-    AuthLoading: AuthLoadingScreen,
-    App: MyDrawerNavigator,
-    Auth: AuthStack,
-  },
-  {
-    initialRouteName: 'AuthLoading',
-  }
-));
+export default codePush(codePushOptions)(
+  createAppContainer(
+    createSwitchNavigator(
+      {
+        AuthLoading: AuthLoadingScreen,
+        App: MyDrawerNavigator,
+        Auth: Username,
+      },
+      {
+        initialRouteName: 'AuthLoading',
+      }
+    )
+  )
+);

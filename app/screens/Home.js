@@ -2,14 +2,16 @@ import React, { Component } from 'react';
 import {
   View,
   Text,
-  Button,
   TextInput,
   SafeAreaView,
   KeyboardAvoidingView,
   AsyncStorage,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import firebase from 'react-native-firebase';
+import Snackbar from 'react-native-snackbar';
+
 import {
   Kaede,
   Jiro,
@@ -22,64 +24,14 @@ import {
   Sae,
   Fumi,
 } from 'react-native-textinput-effects';
+import LinearGradient from 'react-native-linear-gradient';
+import LottieView from 'lottie-react-native';
+import codePush from 'react-native-code-push';
+
+import { Header, Button } from 'react-native-elements';
 
 const httpsCallable = firebase.functions().httpsCallable('myFooBarFn');
-// firebase.admob().initialize('ca-app-pub-2074177971573946~4686737786')
-FCM = firebase.messaging();
-// ref = firebase.firestore().collection("users");
-// check to make sure the user is authenticated
-firebase.auth().onAuthStateChanged(user => {
-  // requests permissions from the user
-  firebase
-    .messaging()
-    .requestPermission()
-    .then(() => {
-      // gets the device's push token
-      FCM.getToken()
-        .then(token => {
-          console.log(user.uid);
-          const ref = firebase
-            .firestore()
-            .collection('users')
-            .doc(user.uid);
-          firebase
-            .firestore()
-            .runTransaction(async transaction => {
-              //
-              const doc = await transaction.get(ref);
-              const profile = user._user;
-              console.log(profile);
-              // if it does not exist set the population to one
-              if (!doc.exists) {
-                transaction.set(ref, {
-                  pushToken: token,
-                  profile,
-                });
-                // return the new value so we know what the new population is
-                return token;
-              }
-
-              transaction.update(ref, { pushToken: token, profile });
-
-              // return the new value so we know what the new population is
-              return token;
-            })
-            .then(token => {
-              console.log(`Transaction successfully committed and new population is '${token}'.`);
-            })
-            .catch(error => {
-              console.log('Transaction failed: ', error);
-            });
-
-          // stores the token in the user's document
-        })
-        .catch(error => {
-          // User has rejected permissions
-          console.log(error);
-        });
-    })
-    .catch(e => console.log(e));
-});
+// firebase.admob().initialize('ca-app-pub-2074177971573946~4686737786'
 
 // const advert = firebase.admob().interstitial('ca-app-pub-2074177971573946/8051267720')
 
@@ -88,11 +40,28 @@ export default class componentName extends Component {
     super(props);
 
     this.state = {
-      phone: '+1',
-      message: 'tony is a cuckboi',
-      title: 'URGENT SEX STUFF',
+      phone: '',
+      message: '',
+      title: '',
       loading: false,
+      user: firebase.auth().currentUser._user,
+      username: '',
+      count: 1,
     }; // //
+    const ref = firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser._user.uid);
+    firebase.firestore().runTransaction(async transaction => {
+      //
+      const doc = await transaction.get(ref);
+      // const ww = doc.get();
+      // console.log('ffff', doc.data().username);
+      this.setState({
+        isAuthenticated: true,
+        username: doc?.data()?.username,
+      });
+    });
     // firebase.admob().openDebugMenu()
     // ca-app-pub-2074177971573946/8051267720
 
@@ -105,8 +74,8 @@ export default class componentName extends Component {
         }
       }, 1000);  */
 
-    AsyncStorage.getItem('phone', phone => {
-      console.log(phone);
+    AsyncStorage.getItem('phone', (err, phone) => {
+      console.log(phone, err);
       if (phone) {
         this.setState({ phone });
       }
@@ -114,19 +83,9 @@ export default class componentName extends Component {
   }
 
   componentDidMount() {
-    this.unsubscribe = firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        this.setState({ user: user.toJSON() });
-      } else {
-        // User has been signed out, reset the state
-        this.setState({
-          user: null,
-          message: '',
-          codeInput: '',
-          phoneNumber: '+1',
-          confirmResult: null,
-        });
-      }
+    codePush.sync({
+      updateDialog: true,
+      installMode: codePush.InstallMode.IMMEDIATE,
     });
   }
 
@@ -135,17 +94,47 @@ export default class componentName extends Component {
   }
 
   onNetwork = () => {
-    const { phone, title, message, loading } = this.state;
-
+    const { phone, title, message, loading, count } = this.state;
+    Keyboard.dismiss();
     this.setState({ loading: true });
     httpsCallable({ targetPhone: phone, title, messageStr: message })
       .then(({ data }) => {
         console.log(data); // hello world
+        let title = '';
+        if (data.notFound) {
+          title = 'user not found!';
+        } else {
+          title = `Message #${count} Sent`;
+        }
+        Snackbar.show({
+          title,
+          duration: Snackbar.LENGTH_LONG,
+          action: {
+            title: 'Resend',
+            color: 'white',
+            onPress: () => {
+              this.onNetwork();
+            },
+          },
+          backgroundColor: '#660066',
+        });
         // advert.show();
-        this.setState({ loading: false });
-        AsyncStorage.setItem('phone', phone);
+        this.setState({ loading: false, count: ++this.state.count });
+        AsyncStorage.setItem('phone', phone, e => console.log(e));
       })
       .catch(httpsError => {
+        Snackbar.show({
+          title: httpsError.message,
+          duration: Snackbar.LENGTH_LONG,
+          action: {
+            title: 'Resend',
+            color: 'white',
+            onPress: () => {
+              this.onNetwork();
+            },
+          },
+          backgroundColor: 'red',
+        });
         console.log(httpsError.code); // invalid-argument
         console.log(httpsError.message); // Your error message goes here
         console.log(httpsError);
@@ -155,18 +144,42 @@ export default class componentName extends Component {
   };
 
   render() {
-    const { user } = this.state;
+    const { user, username } = this.state;
     const { phone, title, message, loading } = this.state;
     return (
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: 'white' }}
+        behavior="padding"
+        enabled
+      >
+        <Header
+          leftComponent={{
+            icon: 'menu',
+            color: '#fff',
+            onPress: () => this.props.navigation.toggleDrawer(),
+          }}
+          centerComponent={{ text: username, style: { color: '#fff' } }}
+          //   centerComponent={{ text: 'MY TITLE', style: { color: '#fff' } }}
+          // rightComponent={{ icon: 'home', color: '#fff' }}
+          backgroundColor="#660066"
+        />
         <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text>User: {JSON.stringify(user)} </Text>
+          <View
+            style={{ flex: 1, height: 50, width: 50, top: 25, right: 25, position: 'absolute' }}
+          >
+            <LottieView
+              style={{ flex: 1, alignSelf: 'flex-start' }}
+              source={require('./animation.json')}
+              autoPlay
+              loop
+            />
+          </View>
 
-          <View style={{ height: 50, width: '90%' }}>
+          <View style={{ marginTop: '-10%', height: 50, width: '90%' }}>
             <Jiro
               style={{ marginTop: 10 }}
-              label="phone number starting with +1"
-              borderColor="purple"
+              label="😈 username to send to"
+              borderColor="#800080"
               inputStyle={{ color: 'white' }}
               onChangeText={text => {
                 this.setState({ phone: text });
@@ -175,11 +188,11 @@ export default class componentName extends Component {
               value={phone}
             />
           </View>
-          <View style={{ marginTop: 20, height: 50, width: '90%' }}>
+          <View style={{ marginTop: 30, height: 50, width: '90%' }}>
             <Jiro
               style={{ marginTop: 10 }}
-              label="Title"
-              borderColor="blue"
+              label="🍎 message title"
+              borderColor="#be29ec"
               inputStyle={{ color: 'white' }}
               onChangeText={text => {
                 this.setState({ title: text });
@@ -188,11 +201,11 @@ export default class componentName extends Component {
               value={title}
             />
           </View>
-          <View style={{ marginTop: 20, marginBottom: 50, height: 50, width: '90%' }}>
+          <View style={{ marginTop: 30, marginBottom: 50, height: 50, width: '90%' }}>
             <Jiro
               style={{ marginTop: 10 }}
-              label="Message"
-              borderColor="lightblue"
+              label="📰 message"
+              borderColor="#d896ff"
               inputStyle={{ color: 'white' }}
               onChangeText={text => {
                 this.setState({ message: text });
@@ -202,11 +215,24 @@ export default class componentName extends Component {
             />
           </View>
 
-          {loading ? <ActivityIndicator /> : <Button title="SEND IT" onPress={this.onNetwork} />}
-
           <Button
-            title="Logout"
-            onPress={() => firebase.auth().signOut() && this.props.navigation.navigate('AuthStack')}
+            loadingProps={{ size: 'large', color: 'rgba(111, 202, 186, 1)' }}
+            loading={loading}
+            title="SEND IT"
+            titleStyle={{ fontWeight: '700' }}
+            buttonStyle={{
+              backgroundColor: 'rgba(92, 99,216, 1)',
+              width: 300,
+              height: 45,
+              borderColor: 'transparent',
+              borderWidth: 0,
+              borderRadius: 5,
+            }}
+            containerStyle={{
+              position: 'absolute',
+              bottom: 30,
+            }}
+            onPress={() => this.onNetwork()}
           />
         </SafeAreaView>
       </KeyboardAvoidingView>
