@@ -46,7 +46,7 @@ public class MainApplication extends Application implements ReactApplication {
         protected String getJSBundleFile() {
         return CodePush.getJSBundleFile();
         }
-    
+
     @Override
     public boolean getUseDeveloperSupport() {
       return BuildConfig.DEBUG;
@@ -63,7 +63,7 @@ public class MainApplication extends Application implements ReactApplication {
             new LinearGradientPackage(),
             new VectorIconsPackage(),
             new RNScreensPackage(),
-            new RNFirebasePackage(),
+
             new RNGestureHandlerPackage(),
         new RNFirebasePackage(),
         // add/remove these packages as appropriate

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "819242072902",
+    "firebase_url": "https://whyme-d3aa2.firebaseio.com",
+    "project_id": "whyme-d3aa2",
+    "storage_bucket": "whyme-d3aa2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819242072902:android:83831bc9f3aaff13",
+        "android_client_info": {
+          "package_name": "com.singularity.tonypls"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "819242072902-9lrjgrmfqvslnu78plnv8giiv854e3pl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD__TjYo49vTXhUnKEQqCWsNjQ7_PYlxq0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

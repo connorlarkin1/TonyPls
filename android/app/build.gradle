@@ -121,6 +121,10 @@ android {
     // because of firestore:
     multiDexEnabled true
   }
+  compileOptions {
+    sourceCompatibility 1.8
+    targetCompatibility 1.8
+  }
   splits {
     abi {
       reset()
